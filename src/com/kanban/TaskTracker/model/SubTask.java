@@ -1,3 +1,5 @@
+package com.kanban.TaskTracker.model;
+
 public class SubTask extends Task {
 
     private final int epicId;
@@ -9,7 +11,7 @@ public class SubTask extends Task {
 
     @Override
     public String toString() {
-        return "SubTask{" +
+        return "com.kanban.TaskTracker.model.SubTask{" +
                 "epicId=" + epicId +
                 '}';
     }

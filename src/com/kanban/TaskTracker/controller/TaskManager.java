@@ -1,3 +1,10 @@
+package com.kanban.TaskTracker.controller;
+
+import com.kanban.TaskTracker.model.EpicTask;
+import com.kanban.TaskTracker.model.SubTask;
+import com.kanban.TaskTracker.model.Task;
+import com.kanban.TaskTracker.util.TaskStatus;
+
 import java.util.HashMap;
 import java.util.ArrayList;
 
@@ -9,7 +16,7 @@ public class TaskManager {
     private int currentId = 1;
 
     public int generateId() {
-        return currentId++;
+        return ++currentId;
     }
 
     public ArrayList<Task> getAllTasks() {
@@ -24,8 +31,11 @@ public class TaskManager {
         return new ArrayList<>(epicTasks.values());
     }
 
-    public void createTask(Task task) {
+    public int createTask(Task task) {
+        final int id = generateId();
+        task.setId(id);
         tasks.put(task.getId(), task);
+        return id;
     }
 
     public Task getTaskById(int id) {
@@ -44,8 +54,11 @@ public class TaskManager {
         tasks.remove(id);
     }
 
-    public void createEpicTask(EpicTask epic) {
+    public int createEpicTask(EpicTask epic) {
+        final int id = generateId();
+        epic.setId(id);
         epicTasks.put(epic.getId(), epic);
+        return id;
     }
 
     public EpicTask getEpicTaskById(int id) {
@@ -58,6 +71,15 @@ public class TaskManager {
 
     public void deleteAllEpics() {
         epicTasks.clear();
+        subTasks.clear();
+    }
+
+    public void deleteAllSubTasks() {
+        for (EpicTask epic : epicTasks.values()) {
+            epic.getSubTasks().clear();
+            updateEpicTask(epic);
+        }
+        subTasks.clear();
     }
 
     public void deleteEpicTaskById(int id) {
@@ -69,13 +91,16 @@ public class TaskManager {
         }
     }
 
-    public void createSubTask(SubTask sub) {
+    public int createSubTask(SubTask sub) {
+        final int id = generateId();
+        sub.setId(id);
         subTasks.put(sub.getId(), sub);
         EpicTask epic = epicTasks.get(sub.getEpicId());
         if (epic != null) {
             epic.addSubTask(sub);
             updateStatus(epic);
         }
+        return id;
     }
 
     public void updateSubTask(SubTask sub) {
@@ -85,6 +110,11 @@ public class TaskManager {
             updateStatus(epic);
         }
     }
+
+    public SubTask getSubTaskById(int id) {
+        return subTasks.get(id);
+    }
+
 
     public ArrayList<SubTask> getSubTasksByEpic(int epicId) {
         EpicTask epic = epicTasks.get(epicId);

@@ -1,8 +1,12 @@
+package com.kanban.TaskTracker.model;
+
+import com.kanban.TaskTracker.util.TaskStatus;
+
 public class Task {
 
     private final String taskName;
     private final String description;
-    private final int id;
+    private int id;
     private TaskStatus status;
 
     public Task(int id, String name, String description) {
@@ -34,7 +38,7 @@ public class Task {
 
     @Override
     public String toString() {
-        String result = "Task{" +
+        String result = "com.kanban.TaskTracker.model.Task{" +
                 "taskName='" + taskName + '\'';
 
         if (description != null) {
@@ -58,6 +62,10 @@ public class Task {
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public TaskStatus getStatus() {

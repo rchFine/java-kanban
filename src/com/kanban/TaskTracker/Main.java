@@ -1,3 +1,11 @@
+package com.kanban.TaskTracker;
+
+import com.kanban.TaskTracker.controller.TaskManager;
+import com.kanban.TaskTracker.model.EpicTask;
+import com.kanban.TaskTracker.model.SubTask;
+import com.kanban.TaskTracker.model.Task;
+import com.kanban.TaskTracker.util.TaskStatus;
+
 public class Main {
 
     public static void main(String[] args) {
