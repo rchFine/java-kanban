@@ -13,7 +13,7 @@ public class EpicTask extends Task {
 
     @Override
     public String toString() {
-        return "com.kanban.TaskTracker.model.EpicTask{" +
+        return "EpicTask{" +
                 "subTasks=" + subTasks +
                 '}';
     }

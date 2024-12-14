@@ -2,6 +2,8 @@ package com.kanban.TaskTracker.model;
 
 import com.kanban.TaskTracker.util.TaskStatus;
 
+import java.util.Objects;
+
 public class Task {
 
     private final String taskName;
@@ -33,12 +35,12 @@ public class Task {
 
     @Override
     public int hashCode() {
-        return Integer.hashCode(id);
+        return Objects.hash(id);
     }
 
     @Override
     public String toString() {
-        String result = "com.kanban.TaskTracker.model.Task{" +
+        String result = "Task{" +
                 "taskName='" + taskName + '\'';
 
         if (description != null) {
