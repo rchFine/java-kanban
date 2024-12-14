@@ -17,5 +17,4 @@ class EpicTaskTest {
 
         assertFalse(epic.getSubTasks().contains(epic), "EpicTask содержит себя как подзадачу");
     }
-
 }

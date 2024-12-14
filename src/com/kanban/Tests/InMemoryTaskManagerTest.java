@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class InMemoryTaskManagerTest {
 
     @Test
-    public void inMemoryTaskManagerShouldAddAndFindTasksById() {
+    public void ShouldAddAndFindTasksById() {
         TaskManager taskManager = Managers.getDefault();
 
         Task task = new Task(taskManager.generateId(), "Task", "Task Description");
