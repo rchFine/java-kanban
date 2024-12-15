@@ -1,6 +1,6 @@
-package com.kanban.TaskTracker.model;
+package com.kanban.tracker.model;
 
-import com.kanban.TaskTracker.util.TaskStatus;
+import com.kanban.tracker.util.TaskStatus;
 
 import java.util.Objects;
 

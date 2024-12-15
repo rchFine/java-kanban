@@ -1,7 +1,7 @@
-package com.kanban.TaskTracker.controller;
+package com.kanban.tracker.controllers;
 
-import com.kanban.TaskTracker.model.*;
-import com.kanban.TaskTracker.util.*;
+import com.kanban.tracker.model.*;
+import com.kanban.tracker.util.*;
 
 import java.util.HashMap;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.kanban.TaskTracker.model;
+package com.kanban.tracker.model;
 
 import java.util.ArrayList;
 

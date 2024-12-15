@@ -1,7 +1,7 @@
-package com.kanban.Tests;
+package com.kanban.test.model;
 
-import com.kanban.TaskTracker.model.EpicTask;
-import com.kanban.TaskTracker.model.SubTask;
+import com.kanban.tracker.model.EpicTask;
+import com.kanban.tracker.model.SubTask;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

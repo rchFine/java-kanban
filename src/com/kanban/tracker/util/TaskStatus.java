@@ -1,4 +1,4 @@
-package com.kanban.TaskTracker.util;
+package com.kanban.tracker.util;
 
 public enum TaskStatus {
     NEW,

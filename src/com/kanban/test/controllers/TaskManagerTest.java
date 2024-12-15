@@ -1,10 +1,10 @@
-package com.kanban.Tests;
+package com.kanban.test.controllers;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kanban.TaskTracker.controller.*;
-import com.kanban.TaskTracker.model.*;
-import com.kanban.TaskTracker.util.*;
+import com.kanban.tracker.controllers.*;
+import com.kanban.tracker.model.*;
+import com.kanban.tracker.util.*;
 import org.junit.jupiter.api.Test;
 
 

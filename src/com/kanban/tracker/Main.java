@@ -1,7 +1,7 @@
-package com.kanban.TaskTracker;
+package com.kanban.tracker;
 
-import com.kanban.TaskTracker.controller.*;
-import com.kanban.TaskTracker.model.*;
+import com.kanban.tracker.controllers.*;
+import com.kanban.tracker.model.*;
 
 public class Main {
 
