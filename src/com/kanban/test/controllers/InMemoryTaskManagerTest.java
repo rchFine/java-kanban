@@ -1,5 +1,6 @@
 package com.kanban.test.controllers;
 
+import com.kanban.tracker.controllers.InMemoryTaskManager;
 import com.kanban.tracker.controllers.TaskManager;
 import com.kanban.tracker.model.*;
 import com.kanban.tracker.util.Managers;
@@ -10,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class InMemoryTaskManagerTest {
 
     @Test
-    public void ShouldAddAndFindTasksById() {
+    public void shouldAddAndFindTasksById() {
         TaskManager taskManager = Managers.getDefault();
 
         Task task = new Task(taskManager.generateId(), "Task", "Task Description");
@@ -22,8 +23,32 @@ class InMemoryTaskManagerTest {
         taskManager.createEpicTask(epic);
         taskManager.createSubTask(subTask);
 
-        assertEquals(task, taskManager.getTaskById(task.getId()), "Задача должна быть найдена по id");
-        assertEquals(epic, taskManager.getEpicTaskById(epic.getId()), "Эпик должен быть найден по id");
-        assertEquals(subTask, taskManager.getSubTaskById(subTask.getId()), "Подзадача должна быть найдена по id");
+        Task findTask = taskManager.getTaskById(task.getId());
+        EpicTask findEpic = taskManager.getEpicTaskById(epic.getId());
+        SubTask findSub = taskManager.getSubTaskById(subTask.getId());
+
+        assertNotNull(findTask, "Задача должна существовать");
+        assertEquals(task.getId(), findTask.getId(), "Id задач должны совпадать");
+
+        assertNotNull(findEpic, "Эпик должен существовать");
+        assertEquals(epic.getId(), findEpic.getId(), "Id эпиков должны совпадать");
+
+        assertNotNull(subTask, "Подзадача должна существовать");
+        assertEquals(subTask.getId(), findSub.getId(), "Id подзадач должны совпадать");
+    }
+
+    @Test
+    public void epicShouldNotContainDeletedSubtask() {
+        InMemoryTaskManager manager = new InMemoryTaskManager(Managers.getDefaultHistory());
+
+        EpicTask epic = new EpicTask(manager.generateId(), "Epic", "Epic Description");
+        manager.createEpicTask(epic);
+
+        SubTask sub = new SubTask(manager.generateId(), "SubTask", "Sub Description", epic.getId());
+        manager.createSubTask(sub);
+
+        manager.deleteSubTaskById(sub.getId());
+
+        assertFalse(epic.getSubTasks().contains(sub), "Эпик не должен содержать удалённую подзадачу");
     }
 }
