@@ -1,12 +1,8 @@
 package com.kanban.test.model;
 
-import com.kanban.tracker.controllers.HistoryManager;
-import com.kanban.tracker.controllers.InMemoryTaskManager;
 import com.kanban.tracker.model.EpicTask;
 import com.kanban.tracker.model.SubTask;
-import com.kanban.tracker.util.Managers;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTaskTest {

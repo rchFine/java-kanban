@@ -1,13 +1,9 @@
 package com.kanban.test.controllers;
 
-import com.kanban.tracker.controllers.HistoryManager;
 import com.kanban.tracker.controllers.InMemoryHistoryManager;
-import com.kanban.tracker.controllers.InMemoryTaskManager;
 import com.kanban.tracker.model.Task;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class InMemoryHistoryManagerTest {
