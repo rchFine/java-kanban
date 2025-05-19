@@ -44,7 +44,7 @@ jobs:
       - name: Build tests
         run: |
           find ./src/com/kanban/test -type f -name "*.java" > tests.txt
-          javac -d out -cp ./out:./tests/lib/junit-platform-console-standalone-1.9.3.jar:./tests/lib/gson-2.10.1.jar:./test @tests.txt
+          javac -d out -cp ./out:./tests/lib/junit-platform-console-standalone-1.9.3.jar:./tests/lib/gson-2.10.1.jar @tests.txt
 
       - name: Run tests
         run: |
