@@ -1,7 +1,6 @@
 package com.kanban.tracker.model;
 
 import com.kanban.tracker.util.TaskStatus;
-
 import java.util.Objects;
 
 public class Task {

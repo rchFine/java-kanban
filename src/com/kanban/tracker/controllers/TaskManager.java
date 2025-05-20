@@ -1,7 +1,6 @@
 package com.kanban.tracker.controllers;
 
 import com.kanban.tracker.model.*;
-
 import java.util.ArrayList;
 import java.util.List;
 

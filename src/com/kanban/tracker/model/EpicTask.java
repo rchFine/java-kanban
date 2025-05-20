@@ -1,10 +1,11 @@
 package com.kanban.tracker.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class EpicTask extends Task {
 
-    private final ArrayList<SubTask> subTasks;
+    private final List<SubTask> subTasks;
 
     public EpicTask(int id, String taskName, String description) {
         super(id, taskName, description);
@@ -18,7 +19,7 @@ public class EpicTask extends Task {
                 '}';
     }
 
-    public ArrayList<SubTask> getSubTasks() {
+    public List<SubTask> getSubTasks() {
         return subTasks;
     }
 

@@ -4,7 +4,6 @@ import com.kanban.tracker.controllers.InMemoryTaskManager;
 import com.kanban.tracker.model.*;
 import com.kanban.tracker.util.Managers;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class SubTaskTest {
