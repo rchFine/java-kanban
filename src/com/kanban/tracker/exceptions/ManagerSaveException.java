@@ -1,4 +1,4 @@
-package com.kanban.tracker.util;
+package com.kanban.tracker.exceptions;
 
 public class ManagerSaveException extends RuntimeException {
 

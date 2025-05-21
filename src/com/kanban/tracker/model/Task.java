@@ -81,4 +81,8 @@ public class Task {
     public TaskType getType() {
         return TaskType.TASK;
     }
+
+    public String toCSVString() {
+        return String.format("%d,%s,%s,%s,%s", id, getType(), taskName, status, description);
+    }
 }

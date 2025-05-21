@@ -36,4 +36,9 @@ public class EpicTask extends Task {
     public TaskType getType() {
         return TaskType.EPIC;
     }
+
+    @Override
+    public String toCSVString() {
+        return String.format("%d,%s,%s,%s,%s", getId(), getType(), getTaskName(), getStatus(), getDescription());
+    }
 }

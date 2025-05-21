@@ -3,7 +3,7 @@ package com.kanban.tracker.controllers;
 import com.kanban.tracker.model.EpicTask;
 import com.kanban.tracker.model.SubTask;
 import com.kanban.tracker.model.Task;
-import com.kanban.tracker.util.ManagerSaveException;
+import com.kanban.tracker.exceptions.ManagerSaveException;
 import com.kanban.tracker.util.TaskStatus;
 import com.kanban.tracker.util.TaskType;
 import java.io.File;
@@ -25,15 +25,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             writer.write("id,type,name,status,description,epic\n");
 
             for (Task task : tasks.values()) {
-                writer.write(toString(task) + "\n");
+                writer.write(task.toCSVString() + "\n");
             }
 
             for (EpicTask epic : epicTasks.values()) {
-                writer.write(toString(epic) + "\n");
+                writer.write(epic.toCSVString() + "\n");
             }
 
             for (SubTask sub : subTasks.values()) {
-                writer.write(toString(sub) + "\n");
+                writer.write(sub.toCSVString() + "\n");
             }
 
         } catch (IOException e) {
@@ -136,12 +136,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 if (line.isEmpty()) continue;
                 Task task = fromString(line);
 
-                if (task instanceof EpicTask epic) {
-                    manager.epicTasks.put(epic.getId(), epic);
-                } else if (task instanceof SubTask sub) {
-                    manager.subTasks.put(sub.getId(), sub);
-                } else {
-                    manager.tasks.put(task.getId(), task);
+                switch (task.getType()) {
+                    case TASK -> manager.tasks.put(task.getId(), task);
+                    case EPIC -> manager.epicTasks.put(task.getId(), (EpicTask) task);
+                    case SUBTASK -> manager.subTasks.put(task.getId(), (SubTask) task);
                 }
 
                 manager.currentId = Math.max(manager.currentId, task.getId() + 1);
@@ -158,21 +156,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
 
         return manager;
-    }
-
-    private static String toString(Task task) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(task.getId()).append(",");
-        sb.append(task.getType()).append(",");
-        sb.append(task.getTaskName()).append(",");
-        sb.append(task.getStatus()).append(",");
-        sb.append(task.getDescription()).append(",");
-
-        if (task instanceof SubTask) {
-            sb.append(((SubTask) task).getEpicId());
-        }
-
-        return sb.toString();
     }
 
     private static Task fromString(String value) {
