@@ -1,5 +1,7 @@
 package com.kanban.tracker.model;
 
+import com.kanban.tracker.util.TaskType;
+
 public class SubTask extends Task {
 
     private final int epicId;
@@ -18,5 +20,10 @@ public class SubTask extends Task {
 
     public int getEpicId() {
         return epicId;
+    }
+
+    @Override
+    public TaskType getType() {
+        return TaskType.SUBTASK;
     }
 }

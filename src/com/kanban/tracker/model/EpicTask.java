@@ -1,5 +1,6 @@
 package com.kanban.tracker.model;
 
+import com.kanban.tracker.util.TaskType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,5 +30,10 @@ public class EpicTask extends Task {
 
     public void removeSubTask(SubTask sub) {
         subTasks.remove(sub);
+    }
+
+    @Override
+    public TaskType getType() {
+        return TaskType.EPIC;
     }
 }
