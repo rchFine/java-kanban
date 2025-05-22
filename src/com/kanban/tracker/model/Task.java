@@ -1,6 +1,7 @@
 package com.kanban.tracker.model;
 
 import com.kanban.tracker.util.TaskStatus;
+import com.kanban.tracker.util.TaskType;
 import java.util.Objects;
 
 public class Task {
@@ -75,5 +76,13 @@ public class Task {
 
     public void setStatus(TaskStatus status) {
         this.status = status;
+    }
+
+    public TaskType getType() {
+        return TaskType.TASK;
+    }
+
+    public String toCSVString() {
+        return String.format("%d,%s,%s,%s,%s", id, getType(), taskName, status, description);
     }
 }
