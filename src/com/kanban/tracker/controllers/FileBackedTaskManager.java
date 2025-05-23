@@ -63,7 +63,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
 
         if (hasIntersection(task)) {
-            if (oldTask != null){
+            if (oldTask != null) {
                 prioritizedTasks.add(oldTask);
             }
             throw new IllegalArgumentException("Невозможно создать подзадачу. Пересечение с другой задачей");
