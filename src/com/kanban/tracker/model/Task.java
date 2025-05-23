@@ -113,6 +113,6 @@ public class Task {
     }
 
     public LocalDateTime getEndTime() {
-        return (startTime != null && duration != null) ? startTime.plus(duration) : null;
+       return (startTime != null && duration != null) ? startTime.plus(duration) : null;
     }
 }

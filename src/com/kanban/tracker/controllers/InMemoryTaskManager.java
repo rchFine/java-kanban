@@ -2,7 +2,7 @@ package com.kanban.tracker.controllers;
 
 import com.kanban.tracker.model.*;
 import com.kanban.tracker.util.*;
-
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -28,19 +28,21 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private boolean isOverLapping(Task task1, Task task2) {
-        if (task1.getStartTime() == null || task1.getEndTime() == null
-                || task2.getStartTime() == null || task2.getEndTime() == null) {
+        LocalDateTime start1 = task1.getStartTime();
+        LocalDateTime end1 = task1.getEndTime();
+        LocalDateTime start2 = task2.getStartTime();
+        LocalDateTime end2 = task2.getEndTime();
+
+        if (start1 == null || end1 == null || start2 == null || end2 == null) {
             return false;
         }
-        boolean noOverlap = task1.getEndTime().isEqual(task2.getStartTime()) || task1.getEndTime().isBefore(task2.getStartTime())
-                || task1.getStartTime().isEqual(task2.getEndTime()) || task1.getStartTime().isAfter(task2.getEndTime());
 
-        return !noOverlap;
+        return start1.isBefore(end2) && end1.isAfter(start2);
     }
 
-    private boolean hasIntersection(Task task) {
+    protected boolean hasIntersection(Task task) {
         return getPrioritizedTasks().stream()
-                .filter(existingTask -> existingTask.getId() != task.getId())
+                .filter(existingTask -> task.getId() == 0 || existingTask.getId() != task.getId())
                 .anyMatch(existingTask -> isOverLapping(task, existingTask));
     }
 
@@ -75,11 +77,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createTask(Task task) {
+        final int id = generateId();
+        task.setId(id);
+
         if (hasIntersection(task)) {
             throw new IllegalArgumentException("Невозможно создать задачу. Пересечение с другой задачей");
         }
-        final int id = generateId();
-        task.setId(id);
+
         tasks.put(task.getId(), task);
         prioritizedTasks.add(task);
         return id;

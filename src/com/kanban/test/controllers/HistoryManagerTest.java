@@ -92,5 +92,4 @@ public abstract class HistoryManagerTest {
         assertEquals(1, history.size());
         assertEquals(task1, history.get(0));
     }
-
 }

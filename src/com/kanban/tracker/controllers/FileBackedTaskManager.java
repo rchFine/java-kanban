@@ -6,6 +6,7 @@ import com.kanban.tracker.model.Task;
 import com.kanban.tracker.exceptions.ManagerSaveException;
 import com.kanban.tracker.util.TaskStatus;
 import com.kanban.tracker.util.TaskType;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -45,15 +46,31 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     @Override
     public int createTask(Task task) {
+        if (hasIntersection(task)) {
+            throw new IllegalArgumentException("Невозможно создать задачу. Пересечение с другой задачей");
+        }
         currentId = Math.max(currentId, task.getId() + 1);
         tasks.put(task.getId(), task);
+        prioritizedTasks.add(task);
         save();
         return task.getId();
     }
 
     @Override
     public void updateTask(Task task) {
-        super.updateTask(task);
+        Task oldTask = tasks.get(task.getId());
+        if (oldTask != null) {
+            prioritizedTasks.remove(oldTask);
+        }
+
+        if (hasIntersection(task)) {
+            if (oldTask != null){
+                prioritizedTasks.add(oldTask);
+            }
+            throw new IllegalArgumentException("Невозможно создать подзадачу. Пересечение с другой задачей");
+        }
+        tasks.put(task.getId(), task);
+        prioritizedTasks.add(task);
         save();
     }
 
@@ -97,20 +114,51 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     @Override
     public int createSubTask(SubTask sub) {
-        currentId = Math.max(currentId, sub.getId() + 1);
-        subTasks.put(sub.getId(), sub);
+        if (hasIntersection(sub)) {
+            throw new IllegalArgumentException("Невозможно создать подзадачу. Пересечение с другой задачей");
+        }
 
         EpicTask epic = epicTasks.get(sub.getEpicId());
-        if (epic != null) {
-            epic.addSubTask(sub);
+        if (epic == null) {
+            throw new IllegalArgumentException("Эпик с id " + sub.getEpicId() + " не существует ");
         }
+
+        currentId = Math.max(currentId, sub.getId() + 1);
+        subTasks.put(sub.getId(), sub);
+        prioritizedTasks.add(sub);
+
+        epic.addSubTask(sub);
+        updateStatus(epic);
+        epic.updateTimeAndDuration();
         save();
         return sub.getId();
     }
 
     @Override
     public void updateSubTask(SubTask sub) {
-        super.updateSubTask(sub);
+        SubTask oldSub = subTasks.get(sub.getId());
+        if (oldSub != null) {
+            prioritizedTasks.remove(oldSub);
+        }
+
+        if (hasIntersection(sub)) {
+            if (oldSub != null) {
+                prioritizedTasks.add(oldSub);
+            }
+            throw new IllegalArgumentException("Пересечение задач по времени");
+        }
+
+        subTasks.put(sub.getId(), sub);
+        prioritizedTasks.add(sub);
+        EpicTask epic = epicTasks.get(sub.getEpicId());
+
+        if (epic != null) {
+            epic.removeSubTask(oldSub);
+            epic.addSubTask(sub);
+            updateStatus(epic);
+            epic.updateTimeAndDuration();
+        }
+
         save();
     }
 

@@ -21,21 +21,20 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
 
     @Test
     public void shouldAddAndFindTasksById() {
-        TaskManager taskManager = Managers.getDefault();
 
-        Task task = new Task(taskManager.generateId(), "Task", "Task Description", null, Duration.ZERO);
-        EpicTask epic = new EpicTask(taskManager.generateId(), "Epic", "Epic Description");
+        Task task = new Task(manager.generateId(), "Task", "Task Description", null, Duration.ZERO);
+        EpicTask epic = new EpicTask(manager.generateId(), "Epic", "Epic Description");
 
-        taskManager.createTask(task);
-        taskManager.createEpicTask(epic);
+        manager.createTask(task);
+        manager.createEpicTask(epic);
 
-        SubTask subTask = new SubTask(taskManager.generateId(), "SubTask", "Sub Description",
+        SubTask subTask = new SubTask(manager.generateId(), "SubTask", "Sub Description",
                 epic.getId(), null, Duration.ZERO);
-        taskManager.createSubTask(subTask);
+        manager.createSubTask(subTask);
 
-        Task findTask = taskManager.getTaskById(task.getId());
-        EpicTask findEpic = taskManager.getEpicTaskById(epic.getId());
-        SubTask findSub = taskManager.getSubTaskById(subTask.getId());
+        Task findTask = manager.getTaskById(task.getId());
+        EpicTask findEpic = manager.getEpicTaskById(epic.getId());
+        SubTask findSub = manager.getSubTaskById(subTask.getId());
 
         assertNotNull(findTask, "Задача должна существовать");
         assertEquals(task.getId(), findTask.getId(), "Id задач должны совпадать");
