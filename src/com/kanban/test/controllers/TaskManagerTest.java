@@ -5,7 +5,6 @@ import com.kanban.tracker.model.*;
 import com.kanban.tracker.util.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 import java.time.Duration;
 import java.time.LocalDateTime;
 

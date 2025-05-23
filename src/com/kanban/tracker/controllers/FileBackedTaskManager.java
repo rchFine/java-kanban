@@ -6,7 +6,6 @@ import com.kanban.tracker.model.Task;
 import com.kanban.tracker.exceptions.ManagerSaveException;
 import com.kanban.tracker.util.TaskStatus;
 import com.kanban.tracker.util.TaskType;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
