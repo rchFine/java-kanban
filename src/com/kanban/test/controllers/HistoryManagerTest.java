@@ -15,7 +15,7 @@ public abstract class HistoryManagerTest {
 
     protected HistoryManager historyManager;
 
-    protected abstract HistoryManager createHistoryManager();
+    public abstract HistoryManager createHistoryManager();
 
     @BeforeEach
     public void setUp() {
