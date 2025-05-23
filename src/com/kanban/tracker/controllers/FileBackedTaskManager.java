@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
@@ -22,7 +24,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private void save() {
         try (FileWriter writer = new FileWriter(file)) {
-            writer.write("id,type,name,status,description,epic\n");
+            writer.write("id,type,name,status,description,epic,startTime,duration\n");
 
             for (Task task : tasks.values()) {
                 writer.write(task.toCSVString() + "\n");
@@ -151,6 +153,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     epic.addSubTask(sub);
                 }
             }
+
+            for (EpicTask epic : manager.epicTasks.values()) {
+                epic.updateTimeAndDuration();
+            }
+
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка загрузки из файла: " + file.getName());
         }
@@ -165,10 +172,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = splitValue[2];
         TaskStatus status = TaskStatus.valueOf(splitValue[3]);
         String description = splitValue[4];
+        String startTimeString = splitValue.length > 6 ? splitValue[6] : "";
+        String durationString = splitValue.length > 7 ? splitValue[7] : "";
+        LocalDateTime startTime = (startTimeString.isEmpty() || startTimeString.equals("0")
+                ? null
+                : LocalDateTime.parse(startTimeString));
+        Duration duration = (durationString.isEmpty() || durationString.equals("0")
+                ? null : Duration.ofMinutes(Long.parseLong(durationString)));
 
         switch (type) {
             case TASK -> {
-                Task task = new Task(id, name, description);
+                Task task = new Task(id, name, description, startTime, duration);
                 task.setStatus(status);
                 return task;
             }
@@ -179,7 +193,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
             case SUBTASK -> {
                 int epicId = Integer.parseInt(splitValue[5]);
-                SubTask sub = new SubTask(id, name, description, epicId);
+                SubTask sub = new SubTask(id, name, description, epicId, startTime, duration);
                 sub.setStatus(status);
                 return sub;
             }
