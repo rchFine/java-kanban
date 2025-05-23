@@ -1,7 +1,6 @@
 package com.kanban.test.controllers;
 
 import com.kanban.tracker.controllers.InMemoryTaskManager;
-import com.kanban.tracker.controllers.TaskManager;
 import com.kanban.tracker.model.EpicTask;
 import com.kanban.tracker.model.SubTask;
 import com.kanban.tracker.model.Task;
