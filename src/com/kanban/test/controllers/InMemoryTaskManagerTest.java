@@ -7,7 +7,6 @@ import com.kanban.tracker.model.SubTask;
 import com.kanban.tracker.model.Task;
 import com.kanban.tracker.util.Managers;
 import org.junit.jupiter.api.Test;
-
 import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,9 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
     @Override
-    protected InMemoryTaskManager createTaskManager(){
+    protected InMemoryTaskManager createTaskManager() {
         return new InMemoryTaskManager(Managers.getDefaultHistory());
     }
+
     @Test
     public void shouldAddAndFindTasksById() {
         TaskManager taskManager = Managers.getDefault();
