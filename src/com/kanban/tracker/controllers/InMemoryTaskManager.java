@@ -80,12 +80,14 @@ public class InMemoryTaskManager implements TaskManager {
         final int id = generateId();
         task.setId(id);
 
-        if (hasIntersection(task)) {
-            throw new IllegalArgumentException("Невозможно создать задачу. Пересечение с другой задачей");
+        if (task.getTaskName() != null && task.getDuration() != null) {
+            if (hasIntersection(task)) {
+                throw new IllegalArgumentException("Невозможно создать задачу. Пересечение с другой задачей");
+            }
+            prioritizedTasks.add(task);
         }
 
         tasks.put(task.getId(), task);
-        prioritizedTasks.add(task);
         return id;
     }
 
@@ -100,17 +102,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-        Task oldTask = tasks.get(task.getId());
-        if (oldTask != null) {
-            prioritizedTasks.remove(oldTask);
+        if (!tasks.containsKey(task.getId())) {
+            return;
         }
+        Task oldTask = tasks.get(task.getId());
+        prioritizedTasks.remove(oldTask);
 
-        if (hasIntersection(task)) {
-            prioritizedTasks.add(oldTask);
-            throw new IllegalArgumentException("Невозможно обновить задачу. Пересечение с другой задачей.");
+        if (task.getStartTime() != null && task.getDuration() != null) {
+            if (hasIntersection(task)) {
+                prioritizedTasks.add(oldTask);
+                throw new IllegalArgumentException("Невозможно обновить задачу. Пересечение с другой задачей.");
+            }
+            prioritizedTasks.add(task);
         }
         tasks.put(task.getId(), task);
-        prioritizedTasks.add(task);
     }
 
     @Override
@@ -156,12 +161,15 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllEpics() {
-        epicTasks.values().forEach(epic -> {
+        for (SubTask subTask : subTasks.values()) {
+            historyManager.remove(subTask.getId());
+            prioritizedTasks.remove(subTask);
+        }
+
+        for (EpicTask epic : epicTasks.values()) {
             historyManager.remove(epic.getId());
-            epic.getSubTasks().stream()
-                    .map(SubTask::getId)
-                    .forEach(historyManager::remove);
-        });
+        }
+
         epicTasks.clear();
         subTasks.clear();
     }
@@ -185,54 +193,69 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpicTaskById(int id) {
         EpicTask epic = epicTasks.remove(id);
         if (epic != null) {
-            epic.getSubTasks().stream()
-                    .map(SubTask::getId)
-                    .forEach(subId -> {
-                        subTasks.remove(subId);
-                        historyManager.remove(subId);
-                    });
+            for (SubTask subTask : epic.getSubTasks()) {
+                subTasks.remove(subTask.getId());
+                prioritizedTasks.remove(subTask);
+                historyManager.remove(subTask.getId());
+            }
         }
         historyManager.remove(id);
     }
 
     @Override
     public int createSubTask(SubTask sub) {
-        if (hasIntersection(sub)) {
-            throw new IllegalArgumentException("Невозможно создать подзадачу. Пересечение с другой задачей");
+        final int epicId = sub.getEpicId();
+        EpicTask epic = epicTasks.get(epicId);
+
+        if (epic == null) {
+            throw new IllegalArgumentException("Эпик с id " + epicId + " не существует");
         }
 
-        EpicTask epic = epicTasks.get(sub.getEpicId());
-        if (epic == null) {
-            throw new IllegalArgumentException("Эпик с id " + sub.getEpicId() + " не существует");
+        if (sub.getStartTime() != null && sub.getDuration() != null) {
+            if (hasIntersection(sub)) {
+                throw new IllegalArgumentException("Невозможно создать подзадачу. Пересечение с другой задачей");
+            }
+            prioritizedTasks.add(sub);
         }
+
         final int id = generateId();
         sub.setId(id);
         subTasks.put(id, sub);
-        prioritizedTasks.add(sub);
-
         epic.addSubTask(sub);
-        updateStatus(epic);
         epic.updateTimeAndDuration();
+        updateStatus(epic);
 
         return id;
     }
 
     @Override
     public void updateSubTask(SubTask sub) {
-        SubTask oldSub = subTasks.get(sub.getId());
-        if (oldSub != null) {
-            prioritizedTasks.remove(oldSub);
+        final int id = sub.getId();
+        final int epicId = sub.getEpicId();
+
+        if (!subTasks.containsKey(id)) {
+            throw new IllegalArgumentException("Подзадача с id " + id + " не найдена.");
         }
-        if (hasIntersection(sub)) {
-            throw new IllegalArgumentException("Невозможно обновить подзадачу. Пересечение с другой задачей.");
+
+        EpicTask epic = epicTasks.get(epicId);
+        if (epic == null) {
+            throw new IllegalArgumentException("Эпик с таким id " + epicId + " не существует");
         }
-        subTasks.put(sub.getId(), sub);
-        prioritizedTasks.add(sub);
-        EpicTask epic = epicTasks.get(sub.getEpicId());
-        if (epic != null) {
-            updateStatus(epic);
-            epic.updateTimeAndDuration();
+
+        SubTask oldSub = subTasks.get(id);
+        prioritizedTasks.remove(oldSub);
+
+        if (sub.getStartTime() != null && sub.getDuration() != null) {
+            if (hasIntersection(sub)) {
+                prioritizedTasks.add(oldSub);
+                throw new IllegalArgumentException("Невозможно обновить подзадачу. Пересечение с другой задачей.");
+            }
+            prioritizedTasks.add(sub);
         }
+
+        subTasks.put(id, sub);
+        updateStatus(epic);
+        epic.updateTimeAndDuration();
     }
 
     @Override
