@@ -2,6 +2,8 @@ package com.kanban.tracker.model;
 
 import com.kanban.tracker.util.TaskStatus;
 import com.kanban.tracker.util.TaskType;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -10,12 +12,16 @@ public class Task {
     private final String description;
     private int id;
     private TaskStatus status;
+    protected Duration duration;
+    protected LocalDateTime startTime;
 
-    public Task(int id, String name, String description) {
+    public Task(int id, String name, String description, LocalDateTime startTime, Duration duration) {
         this.id = id;
         this.taskName = name;
         this.description = description;
         this.status = TaskStatus.NEW;
+        this.startTime = startTime;
+        this.duration = duration;
     }
 
     @Override
@@ -83,6 +89,30 @@ public class Task {
     }
 
     public String toCSVString() {
-        return String.format("%d,%s,%s,%s,%s", id, getType(), taskName, status, description);
+        return String.format("%d,%s,%s,%s,%s,%s,%s", id, getType(), taskName, status, description,
+                startTime != null ? startTime.toString() : "",
+                duration != null ? String.valueOf(duration.toMinutes()) : "");
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+        getEndTime();
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+        getEndTime();
+    }
+
+    public LocalDateTime getEndTime() {
+       return (startTime != null && duration != null) ? startTime.plus(duration) : null;
     }
 }

@@ -4,14 +4,17 @@ import com.kanban.tracker.controllers.InMemoryTaskManager;
 import com.kanban.tracker.model.*;
 import com.kanban.tracker.util.Managers;
 import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class SubTaskTest {
 
     @Test
     public void subclassesWithSameIdShouldBeEqual() {
-        SubTask subTask1 = new SubTask(1, "SubTask 1", "Description 1", 5);
-        SubTask subTask2 = new SubTask(1, "SubTask 2", "Description 2", 7);
+        SubTask subTask1 = new SubTask(1, "SubTask 1", "Description 1", 5, null, Duration.ZERO);
+        SubTask subTask2 = new SubTask(1, "SubTask 2", "Description 2", 7, null, Duration.ZERO);
 
         assertEquals(subTask1, subTask2, "Сабтаски с одинаковым id не эквиваленты");
 
@@ -23,13 +26,14 @@ class SubTaskTest {
 
     @Test
     public void subTaskShouldNotBeOwnEpic() {
-        EpicTask epic = new EpicTask(1, "Epic Task", "Epic Description");
-        SubTask subTask = new SubTask(2, "SubTask", "SubTask Description", epic.getId());
-
         InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        taskManager.createEpicTask(epic);
-        taskManager.createSubTask(subTask);
 
-        assertTrue(taskManager.getSubTasksByEpic(subTask.getId()).isEmpty(), "Сабтаск не должен быть своим эпиком");
+        EpicTask epic = new EpicTask(1, "EpicTask", "Description");
+        taskManager.createEpicTask(epic);
+
+        SubTask sub = new SubTask(2, "SubTask", "Description", 2, null, Duration.ZERO);
+        taskManager.createSubTask(sub);
+
+        assertNull(taskManager.getSubTaskById(2), "Сабтаск не должен быть добавлен, если его эпик не существует");
     }
 }

@@ -3,6 +3,9 @@ package com.kanban.test.model;
 import com.kanban.tracker.model.EpicTask;
 import com.kanban.tracker.model.SubTask;
 import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTaskTest {
@@ -11,7 +14,7 @@ class EpicTaskTest {
     public void epicShouldNotAddItselfAsSubTask() {
         EpicTask epic = new EpicTask(1, "Epic Task", "Epic Description");
 
-        SubTask subTask = new SubTask(1, "Epic Task Sub", "Epic Description", 1);
+        SubTask subTask = new SubTask(1, "Epic Task Sub", "Epic Description", 1, null, Duration.ZERO);
 
         epic.addSubTask(subTask);
 

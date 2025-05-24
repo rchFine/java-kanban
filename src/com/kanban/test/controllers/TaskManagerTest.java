@@ -1,46 +1,116 @@
 package com.kanban.test.controllers;
 
-import static org.junit.jupiter.api.Assertions.*;
-import com.kanban.tracker.controllers.*;
+import com.kanban.tracker.controllers.TaskManager;
 import com.kanban.tracker.model.*;
-import com.kanban.tracker.util.*;
+import com.kanban.tracker.util.TaskStatus;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.util.List;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
-class TaskManagerTest {
+import static org.junit.jupiter.api.Assertions.*;
 
-    @Test
-    public void utilityClassShouldReturnInitializedManagers() {
-        TaskManager taskManager = Managers.getDefault();
-        HistoryManager historyManager = Managers.getDefaultHistory();
+public abstract class TaskManagerTest<T extends TaskManager> {
 
-        assertNotNull(taskManager, "TaskManager должен быть проинициализирован");
-        assertNotNull(historyManager, "HistoryManager должен быть проинициализирован");
+    protected TaskManager manager;
+
+    protected abstract T createTaskManager();
+
+    @BeforeEach
+    public void setUp() {
+        manager = createTaskManager();
     }
 
     @Test
-    public void shouldAddTaskToHistoryWithoutDuplicates() {
-        TaskManager manager = Managers.getDefault();
-        Task task = new Task(manager.generateId(), "Test Task", "Task Description");
-        manager.createTask(task);
-
-        manager.getTaskById(task.getId());
-        manager.getTaskById(task.getId());
-
-        List<Task> history = manager.getHistory();
-        assertEquals(1, history.size(), "История должна содержать только одну задачу без дубликатов");
-        assertEquals(task, history.getFirst(), "Задача в истории должна быть та, которая была просмотрена");
+    public void shouldCreateAndGetTask() {
+        Task task = new Task(0, "Task 1", "Description", LocalDateTime.now(), Duration.ofMinutes(15));
+        int id = manager.createTask(task);
+        Task savedTask = manager.getTaskById(id);
+        assertNotNull(savedTask);
+        assertEquals(task.getTaskName(), savedTask.getTaskName());
+        assertEquals(TaskStatus.NEW, savedTask.getStatus());
     }
 
     @Test
-    public void shouldNotLoseTaskWhenIdChangedBySetter() {
-        TaskManager manager = Managers.getDefault();
-        Task task = new Task(manager.generateId(), "Task", "Task Description");
+    public void shouldCalculateEpicStatusCorrectly() {
+        EpicTask epic = new EpicTask(0, "Epic", "Epic Description");
+        int epicId = manager.createEpicTask(epic);
 
-        manager.createTask(task);
-        task.setId(32);
+        SubTask sub1 = new SubTask(manager.generateId(), "Sub1", "Description 1", epicId,
+                LocalDateTime.now(), Duration.ofMinutes(10));
+        SubTask sub2 = new SubTask(manager.generateId(), "Sub2", "Description 2", epicId,
+                LocalDateTime.now().plusMinutes(20), Duration.ofMinutes(10));
+        manager.createSubTask(sub1);
+        manager.createSubTask(sub2);
 
-        assertNull(manager.getTaskById(task.getId()), "Менеджер не должен находить задачу с новым id");
-        assertNull(manager.getTaskById(32), "Менеджер не должен находить с новым id");
+        assertEquals(TaskStatus.NEW, manager.getEpicTaskById(epicId).getStatus());
+
+        manager.getSubTaskById(sub1.getId()).setStatus(TaskStatus.DONE);
+        manager.getSubTaskById(sub2.getId()).setStatus(TaskStatus.DONE);
+
+        EpicTask epicToUpdate = manager.getEpicTaskById(epicId);
+        manager.updateEpicTask(epicToUpdate);
+
+        assertEquals(TaskStatus.DONE, manager.getEpicTaskById(epicId).getStatus());
+
+        manager.getSubTaskById(sub1.getId()).setStatus(TaskStatus.NEW);
+
+        epicToUpdate = manager.getEpicTaskById(epicId);
+        manager.updateEpicTask(epicToUpdate);
+
+        assertEquals(TaskStatus.IN_PROGRESS, manager.getEpicTaskById(epicId).getStatus());
+
+        manager.getSubTaskById(sub1.getId()).setStatus(TaskStatus.IN_PROGRESS);
+
+        epicToUpdate = manager.getEpicTaskById(epicId);
+        manager.updateEpicTask(epicToUpdate);
+
+        assertEquals(TaskStatus.IN_PROGRESS, manager.getEpicTaskById(epicId).getStatus());
+    }
+
+    @Test
+    public void shouldHaveLinkedEpicForSubTask() {
+        EpicTask epic = new EpicTask(0, "Epic", "Description");
+        int epicId = manager.createEpicTask(epic);
+
+        SubTask sub = new SubTask(0, "Sub", "Description", epicId, LocalDateTime.now(), Duration.ofMinutes(10));
+        int subId = manager.createSubTask(sub);
+        SubTask savedSub = manager.getSubTaskById(subId);
+
+        assertNotNull(savedSub);
+        assertEquals(epicId, savedSub.getEpicId());
+        assertNotNull(manager.getEpicTaskById(epicId));
+    }
+
+    @Test
+    public void shouldDetectTimeIntersections() {
+        LocalDateTime start = LocalDateTime.of(2025,5,23,10,0);
+
+        Task task1 = new Task(0, "Task1", "Description", start, Duration.ofMinutes(30));
+        manager.createTask(task1);
+
+        Task task2 = new Task(0, "Task2", "Description", start.plusMinutes(10), Duration.ofMinutes(20));
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            manager.createTask(task2);
+        });
+
+        Task task3 = new Task(0, "Task3", "Description ", start.plusMinutes(40), Duration.ofMinutes(10));
+        assertDoesNotThrow(() -> {
+            manager.createTask(task3);
+        });
+    }
+
+    @Test
+    public void shouldAllowTaskStartingExactlyWhenAnotherEnds() {
+        LocalDateTime start = LocalDateTime.now();
+
+        Task task1 = new Task(manager.generateId(), "Task1", "Description", start, Duration.ofMinutes(30));
+        manager.createTask(task1);
+
+        Task task2 = new Task(manager.generateId(), "Task2", "Description", start.plusMinutes(30), Duration.ofMinutes(30));
+        assertDoesNotThrow(() -> {
+            manager.createTask(task2);
+        });
     }
 }

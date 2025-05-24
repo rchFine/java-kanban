@@ -1,6 +1,7 @@
 package com.kanban.test.controllers;
 
 import com.kanban.tracker.controllers.FileBackedTaskManager;
+import com.kanban.tracker.exceptions.ManagerSaveException;
 import com.kanban.tracker.model.EpicTask;
 import com.kanban.tracker.model.SubTask;
 import com.kanban.tracker.model.Task;
@@ -8,9 +9,23 @@ import com.kanban.tracker.util.TaskStatus;
 import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
-import static org.junit.jupiter.api.Assertions.*;
+import java.nio.file.Files;
+import java.time.Duration;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class FileBackedTaskManagerTest {
+public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
+
+    @Override
+    public FileBackedTaskManager createTaskManager() {
+        try {
+            File tempFile = Files.createTempFile("FileManagerTest", ".csv").toFile();
+            tempFile.deleteOnExit();
+            return new FileBackedTaskManager(tempFile);
+        } catch (IOException e) {
+            throw new ManagerSaveException("Не удалось создать временный файл");
+        }
+    }
 
     @Test
     public void shouldSaveAndLoadEmptyFile() throws IOException {
@@ -18,7 +33,7 @@ class FileBackedTaskManagerTest {
         file.deleteOnExit();
 
         FileBackedTaskManager savedManager = new FileBackedTaskManager(file);
-        Task task = new Task(1, "Task", "Task Description");
+        Task task = new Task(1, "Task", "Task Description", null, Duration.ZERO);
         int taskId = savedManager.createTask(task);
 
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(file);
@@ -35,7 +50,7 @@ class FileBackedTaskManagerTest {
         file.deleteOnExit();
 
         FileBackedTaskManager savedManager = new FileBackedTaskManager(file);
-        Task task = new Task(1, "Task", "Task Description");
+        Task task = new Task(1, "Task", "Task Description", null, Duration.ZERO);
         task.setStatus(TaskStatus.IN_PROGRESS);
         savedManager.createTask(task);
 
@@ -58,8 +73,8 @@ class FileBackedTaskManagerTest {
         EpicTask epic = new EpicTask(1, "Epic", "Epic Description");
         savedManager.createEpicTask(epic);
 
-        SubTask sub1 = new SubTask(2, "SubTask1", "Sub Description1", 1);
-        SubTask sub2 = new SubTask(3, "SubTask2", "Sub Description2", 1);
+        SubTask sub1 = new SubTask(2, "SubTask1", "Sub Description1", 1, null, Duration.ZERO);
+        SubTask sub2 = new SubTask(3, "SubTask2", "Sub Description2", 1, null, Duration.ZERO);
         savedManager.createSubTask(sub1);
         savedManager.createSubTask(sub2);
 
