@@ -28,12 +28,11 @@ class SubTaskTest {
     public void subTaskShouldNotBeOwnEpic() {
         InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
 
-        EpicTask epic = new EpicTask(1, "EpicTask", "Description");
-        taskManager.createEpicTask(epic);
+        SubTask sub = new SubTask(0, "SubTask", "Description", 15, null, Duration.ZERO);
 
-        SubTask sub = new SubTask(2, "SubTask", "Description", 2, null, Duration.ZERO);
-        taskManager.createSubTask(sub);
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> taskManager.createSubTask(sub),
+                "Если эпика нет, выбросится исключение");
 
-        assertNull(taskManager.getSubTaskById(2), "Сабтаск не должен быть добавлен, если его эпик не существует");
+        assertEquals("Эпик с id 15 не существует", e.getMessage());
     }
 }
