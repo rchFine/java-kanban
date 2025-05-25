@@ -1,6 +1,5 @@
 package com.kanban.tracker.http.handlers;
 
-import com.google.gson.Gson;
 import com.kanban.tracker.controllers.TaskManager;
 import com.kanban.tracker.exceptions.NotFoundException;
 import com.kanban.tracker.model.SubTask;
@@ -14,12 +13,8 @@ import java.util.List;
 
 public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
 
-    private final TaskManager taskManager;
-    private final Gson gson;
-
-    public SubtaskHandler(TaskManager taskManager, Gson gson) {
-        this.taskManager = taskManager;
-        this.gson = gson;
+    public SubtaskHandler(TaskManager taskManager) {
+        super(taskManager);
     }
 
     @Override
@@ -33,13 +28,13 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
                 switch (method) {
                     case "GET" -> handleGetAll(httpExchange);
                     case "POST" -> handlePost(httpExchange);
-                    default -> sendNotFound(httpExchange, "Метод не поддерживается");
+                    default -> sendMethodNotAllowed(httpExchange, "Метод не поддерживается");
                 }
             } else if ("/subtasks/subtask".equals(path)) {
                 switch (method) {
                     case "GET" -> handleGetById(httpExchange, query);
                     case "DELETE" -> handleDeleteById(httpExchange, query);
-                    default -> sendNotFound(httpExchange, "Метод не поддерживается");
+                    default -> sendMethodNotAllowed(httpExchange, "Метод не поддерживается");
                 }
             } else {
                 sendNotFound(httpExchange, "Ресурс не найден");

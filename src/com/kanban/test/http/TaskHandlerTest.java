@@ -1,11 +1,14 @@
 package com.kanban.test.http;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.kanban.tracker.controllers.InMemoryHistoryManager;
 import com.kanban.tracker.controllers.InMemoryTaskManager;
 import com.kanban.tracker.controllers.TaskManager;
 import com.kanban.tracker.http.server.HttpTaskServer;
 import com.kanban.tracker.model.Task;
+import com.kanban.tracker.util.DurationAdapter;
+import com.kanban.tracker.util.LocalDateTimeAdapter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +28,9 @@ public class TaskHandlerTest {
     private TaskManager taskManager;
     private HttpTaskServer httpServer;
     private final HttpClient client = HttpClient.newHttpClient();
-    private final Gson gson = HttpTaskServer.getGson();
+    private final Gson gson = new GsonBuilder().registerTypeAdapter(Duration.class, new DurationAdapter())
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
 
     @BeforeEach
     public void setUp() throws IOException {

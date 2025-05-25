@@ -1,12 +1,15 @@
 package com.kanban.test.http;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.kanban.tracker.controllers.InMemoryHistoryManager;
 import com.kanban.tracker.controllers.InMemoryTaskManager;
 import com.kanban.tracker.controllers.TaskManager;
 import com.kanban.tracker.http.server.HttpTaskServer;
 import com.kanban.tracker.model.EpicTask;
 import com.kanban.tracker.model.SubTask;
+import com.kanban.tracker.util.DurationAdapter;
+import com.kanban.tracker.util.LocalDateTimeAdapter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +30,9 @@ public class EpicTaskHandlerTest {
     private TaskManager taskManager;
     private HttpTaskServer httpServer;
     private final HttpClient client = HttpClient.newHttpClient();
-    private final Gson gson = HttpTaskServer.getGson();
+    private final Gson gson = new GsonBuilder().registerTypeAdapter(Duration.class, new DurationAdapter())
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
 
     @BeforeEach
     public void setUp() throws IOException {
@@ -122,14 +127,14 @@ public class EpicTaskHandlerTest {
     }
 
     @Test
-    public void shouldReturn404ForUnsupportedMethod() throws IOException, InterruptedException {
+    public void shouldReturn405ForUnsupportedMethod() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8080/epics"))
                 .PUT(HttpRequest.BodyPublishers.ofString(""))
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(404, response.statusCode());
+        assertEquals(405, response.statusCode());
     }
 }
 

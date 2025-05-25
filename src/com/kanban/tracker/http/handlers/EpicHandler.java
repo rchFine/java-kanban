@@ -1,6 +1,5 @@
 package com.kanban.tracker.http.handlers;
 
-import com.google.gson.Gson;
 import com.kanban.tracker.controllers.TaskManager;
 import com.kanban.tracker.exceptions.NotFoundException;
 import com.kanban.tracker.model.EpicTask;
@@ -15,12 +14,8 @@ import java.util.List;
 
 public class EpicHandler extends BaseHttpHandler implements HttpHandler {
 
-    private final TaskManager taskManager;
-    private final Gson gson;
-
-    public EpicHandler(TaskManager taskManager, Gson gson) {
-        this.taskManager = taskManager;
-        this.gson = gson;
+    public EpicHandler(TaskManager taskManager) {
+        super(taskManager);
     }
 
     @Override
@@ -34,19 +29,19 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
                 switch (method) {
                     case "GET" -> handleGetAll(httpExchange);
                     case "POST" -> handlePost(httpExchange);
-                    default -> sendNotFound(httpExchange, "Метод не поддерживается");
+                    default -> sendMethodNotAllowed(httpExchange, "Метод не поддерживается");
                 }
             } else if ("/epics/epic".equals(path)) {
                 switch (method) {
                     case "GET" -> handleGetById(httpExchange, query);
                     case "DELETE" -> handleDeleteById(httpExchange, query);
-                    default -> sendNotFound(httpExchange, "Метод не поддерживается");
+                    default -> sendMethodNotAllowed(httpExchange, "Метод не поддерживается");
                 }
             } else if ("/epics/subtasks".equals(path)) {
                 if ("GET".equals(method)) {
                     handleGetSubtasksByEpic(httpExchange, query);
                 } else {
-                    sendNotFound(httpExchange, "Метод не поддерживается");
+                    sendMethodNotAllowed(httpExchange, "Метод не поддерживается");
                 }
             } else {
                 sendNotFound(httpExchange, "Ресурс не найден");

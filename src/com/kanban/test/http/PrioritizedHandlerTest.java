@@ -71,7 +71,7 @@ public class PrioritizedHandlerTest {
     }
 
     @Test
-    public void shouldReturn404ForUnsupportedMethod() throws IOException, InterruptedException {
+    public void shouldReturn405ForUnsupportedMethod() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8080/prioritized"))
                 .POST(HttpRequest.BodyPublishers.noBody())
@@ -79,7 +79,7 @@ public class PrioritizedHandlerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(404, response.statusCode());
+        assertEquals(405, response.statusCode());
         assertTrue(response.body().contains("Метод не поддерживается"));
     }
 }

@@ -69,7 +69,7 @@ public class HistoryHandlerTest {
     }
 
     @Test
-    public void shouldReturn404ForUnsupportedMethod() throws IOException, InterruptedException {
+    public void shouldReturn405ForUnsupportedMethod() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8080/history"))
                 .POST(HttpRequest.BodyPublishers.noBody())
@@ -77,7 +77,7 @@ public class HistoryHandlerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(404, response.statusCode());
+        assertEquals(405, response.statusCode());
         assertTrue(response.body().contains("Метод не поддерживается"));
     }
 }

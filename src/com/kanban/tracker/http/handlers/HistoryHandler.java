@@ -1,7 +1,5 @@
 package com.kanban.tracker.http.handlers;
 
-import com.google.gson.Gson;
-import com.kanban.tracker.controllers.HistoryManager;
 import com.kanban.tracker.controllers.TaskManager;
 import com.kanban.tracker.model.Task;
 import com.sun.net.httpserver.HttpExchange;
@@ -12,12 +10,8 @@ import java.util.List;
 
 public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
 
-    private final HistoryManager historyManager;
-    private final Gson gson;
-
-    public HistoryHandler(TaskManager taskManager, Gson gson) {
-        this.historyManager = taskManager.getHistoryManager();
-        this.gson = gson;
+    public HistoryHandler(TaskManager taskManager) {
+        super(taskManager);
     }
 
     @Override
@@ -28,7 +22,7 @@ public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
             if ("GET".equals(method)) {
                 handleGet(httpExchange);
             } else {
-                sendNotFound(httpExchange, "Метод не поддерживается. Только GET.");
+                sendMethodNotAllowed(httpExchange, "Метод не поддерживается. Только GET.");
             }
         } catch (IOException e) {
             sendServerError(httpExchange, "Ошибка обработки запроса: " + e.getMessage());
