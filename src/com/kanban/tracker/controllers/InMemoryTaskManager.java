@@ -1,5 +1,6 @@
 package com.kanban.tracker.controllers;
 
+import com.kanban.tracker.exceptions.NotFoundException;
 import com.kanban.tracker.model.*;
 import com.kanban.tracker.util.*;
 import java.time.LocalDateTime;
@@ -46,8 +47,14 @@ public class InMemoryTaskManager implements TaskManager {
                 .anyMatch(existingTask -> isOverLapping(task, existingTask));
     }
 
+    @Override
     public List<Task> getPrioritizedTasks() {
         return new ArrayList<>(prioritizedTasks);
+    }
+
+    @Override
+    public HistoryManager getHistoryManager() {
+        return historyManager;
     }
 
     @Override
@@ -94,16 +101,17 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTaskById(int id) {
         Task task = tasks.get(id);
-        if (task != null) {
-            historyManager.add(task);
+        if (task == null) {
+            throw new NotFoundException("Задача с id " + id + " не найдена");
         }
+        historyManager.add(task);
         return task;
     }
 
     @Override
     public void updateTask(Task task) {
         if (!tasks.containsKey(task.getId())) {
-            return;
+            throw new NotFoundException("Задача с id " + task.getId() + " не найдена");
         }
         Task oldTask = tasks.get(task.getId());
         prioritizedTasks.remove(oldTask);
@@ -128,10 +136,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTaskById(int id) {
         Task removedTask = tasks.remove(id);
-        if (removedTask != null) {
-            prioritizedTasks.remove(removedTask);
-            historyManager.remove(id);
+        if (removedTask == null) {
+            throw new NotFoundException("Задача с id " + id + " не найдена.");
         }
+        prioritizedTasks.remove(removedTask);
+        historyManager.remove(id);
     }
 
     @Override
@@ -146,9 +155,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public EpicTask getEpicTaskById(int id) {
         EpicTask epic = epicTasks.get(id);
-        if (epic != null) {
-            historyManager.add(epic);
+        if (epic == null) {
+            throw new NotFoundException("Эпик с id " + id + " не найден.");
         }
+        historyManager.add(epic);
         return epic;
     }
 
@@ -192,13 +202,16 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteEpicTaskById(int id) {
         EpicTask epic = epicTasks.remove(id);
-        if (epic != null) {
-            for (SubTask subTask : epic.getSubTasks()) {
-                subTasks.remove(subTask.getId());
-                prioritizedTasks.remove(subTask);
-                historyManager.remove(subTask.getId());
-            }
+        if (epic == null) {
+            throw new NotFoundException("Эпик с id " + id + " не найден");
         }
+
+        for (SubTask subTask : epic.getSubTasks()) {
+            subTasks.remove(subTask.getId());
+            prioritizedTasks.remove(subTask);
+            historyManager.remove(subTask.getId());
+        }
+
         historyManager.remove(id);
     }
 
@@ -261,9 +274,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public SubTask getSubTaskById(int id) {
         SubTask subTask = subTasks.get(id);
-        if (subTask != null) {
-            historyManager.add(subTask);
+        if (subTask == null) {
+            throw new NotFoundException("Подзадача с id " + id + " не найдена");
         }
+        historyManager.add(subTask);
         return subTask;
     }
 
@@ -281,14 +295,17 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteSubTaskById(int id) {
         SubTask sub = subTasks.remove(id);
-        if (sub != null) {
-            prioritizedTasks.remove(sub);
-            EpicTask epic = epicTasks.get(sub.getEpicId());
-            if (epic != null) {
-                epic.removeSubTask(sub);
-                updateStatus(epic);
-                epic.updateTimeAndDuration();
-            }
+
+        if (sub == null) {
+            throw new NotFoundException("Подзадача с id " + id + " не найдена");
+        }
+
+        prioritizedTasks.remove(sub);
+        EpicTask epic = epicTasks.get(sub.getEpicId());
+        if (epic != null) {
+            epic.removeSubTask(sub);
+            updateStatus(epic);
+            epic.updateTimeAndDuration();
             historyManager.remove(id);
         }
     }
